@@ -8,6 +8,7 @@
 #Notes de version :
 # - réorganisation de la fenêtre d'édition de réservations
 # - les réservations ancrées ont maintenant une bordure bleue, et la bordure a été agrandie
+# - ajout des numéros des jours en bas du planning
 
 from tkinter import *
 import tkinter.messagebox as mb
@@ -24,7 +25,7 @@ l_forte = 4
 l_faible = 1
 nb_places = 35
 rep_jours = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di']
-prof_pool = 20
+prof_pool = 15
 fond_dimanche = 'yellow'
 fond_place_pair = '#DCDCDC'
 w_cv = 1920
@@ -100,15 +101,17 @@ class EBMMain(Tk):
         for k in range(1, 32):
             jour = date(annee, 7, k).weekday()
             if jour == 6: #coloriage du dimanche
-                self.cv.create_rectangle((k+1) * w_case, 3 * h_case, (k+2) * w_case, (5+nb_places) * h_case, fill=fond_dimanche)
-                self.cv.create_rectangle((k+1) * w_case, (6+nb_places) * h_case, (k+2) * w_case, (6+nb_places+prof_pool) * h_case, fill=fond_dimanche)
+                self.cv.create_rectangle((k+1) * w_case, 3 * h_case, (k+2) * w_case, (6+nb_places) * h_case, fill=fond_dimanche)
+                self.cv.create_rectangle((k+1) * w_case, (7+nb_places) * h_case, (k+2) * w_case, (7+nb_places+prof_pool) * h_case, fill=fond_dimanche)
             self.cv.create_text(int((1.5 + k) * w_case), int(3.5 * h_case), text=str(k))
+            self.cv.create_text(int((1.5 + k) * w_case), int((5.5 + nb_places) * h_case), text=str(k))
             self.cv.create_text(int((1.5 + k) * w_case), int(4.5 * h_case), text=rep_jours[jour])
             jour = date(annee, 8, k).weekday()
             if jour == 6: #coloriage du dimanche
-                self.cv.create_rectangle((k+33) * w_case, 3 * h_case, (k+34) * w_case, (5+nb_places) * h_case, fill=fond_dimanche)
-                self.cv.create_rectangle((k+33) * w_case, (6+nb_places) * h_case, (k+34) * w_case, (6+nb_places+prof_pool) * h_case, fill=fond_dimanche)
+                self.cv.create_rectangle((k+33) * w_case, 3 * h_case, (k+34) * w_case, (6+nb_places) * h_case, fill=fond_dimanche)
+                self.cv.create_rectangle((k+33) * w_case, (7+nb_places) * h_case, (k+34) * w_case, (7+nb_places+prof_pool) * h_case, fill=fond_dimanche)
             self.cv.create_text(int((33.5 + k) * w_case), int(3.5 * h_case), text=str(k))
+            self.cv.create_text(int((33.5 + k) * w_case), int((5.5 + nb_places)* h_case), text=str(k))
             self.cv.create_text(int((33.5 + k) * w_case), int(4.5 * h_case), text=rep_jours[jour])
         
         #lignes maîtresses horizontales
@@ -121,34 +124,35 @@ class EBMMain(Tk):
         self.cv.create_line(w_case, 5 * h_case, 66 * w_case, 5 * h_case, width=l_forte)
         self.cv.create_line(w_case, (5 + nb_places) * h_case, 66 * w_case, (5 + nb_places) * h_case, width=l_forte)
         self.cv.create_line(2 * w_case, (6 + nb_places) * h_case, 65 * w_case, (6 + nb_places) * h_case, width=l_forte)
-        self.cv.create_line(2 * w_case, (6 + nb_places + prof_pool) * h_case, 65 * w_case, (6 + nb_places + prof_pool) * h_case, width=l_forte)
+        self.cv.create_line(2 * w_case, (7 + nb_places) * h_case, 65 * w_case, (7 + nb_places) * h_case, width=l_forte)
+        self.cv.create_line(2 * w_case, (7 + nb_places + prof_pool) * h_case, 65 * w_case, (7 + nb_places + prof_pool) * h_case, width=l_forte)
         
         #lignes maîtresses verticales
         self.cv.create_line(w_case, 5 * h_case, w_case, (5 + nb_places) * h_case, width=l_forte)
-        self.cv.create_line(2 * w_case, h_case, 2 * w_case, (6 + nb_places + prof_pool) * h_case, width=l_forte)
-        self.cv.create_line(33 * w_case, 2 * h_case, 33 * w_case, (5 + nb_places) * h_case, width=l_forte)
-        self.cv.create_line(33 * w_case, (6 + nb_places) * h_case, 33 * w_case, (6 + nb_places + prof_pool) * h_case, width=l_forte)
-        self.cv.create_line(34 * w_case, 2 * h_case, 34 * w_case, (5 + nb_places) * h_case, width=l_forte)
-        self.cv.create_line(34 * w_case, (6 + nb_places) * h_case, 34 * w_case, (6 + nb_places + prof_pool) * h_case, width=l_forte)
-        self.cv.create_line(65 * w_case, h_case, 65 * w_case, (6 + nb_places + prof_pool) * h_case, width=l_forte)
+        self.cv.create_line(2 * w_case, h_case, 2 * w_case, (7 + nb_places + prof_pool) * h_case, width=l_forte)
+        self.cv.create_line(33 * w_case, 2 * h_case, 33 * w_case, (6 + nb_places) * h_case, width=l_forte)
+        self.cv.create_line(33 * w_case, (7 + nb_places) * h_case, 33 * w_case, (7 + nb_places + prof_pool) * h_case, width=l_forte)
+        self.cv.create_line(34 * w_case, 2 * h_case, 34 * w_case, (6 + nb_places) * h_case, width=l_forte)
+        self.cv.create_line(34 * w_case, (7 + nb_places) * h_case, 34 * w_case, (7 + nb_places + prof_pool) * h_case, width=l_forte)
+        self.cv.create_line(65 * w_case, h_case, 65 * w_case, (7 + nb_places + prof_pool) * h_case, width=l_forte)
         self.cv.create_line(66 * w_case, 5 * h_case, 66 * w_case, (5 + nb_places) * h_case, width=l_forte)
         
         #cadrillage horizontal
         for k in range(1, nb_places):
             self.cv.create_line(w_case, (5 + k) * h_case, 65 * w_case, (5 + k) * h_case, width=l_faible)
         for k in range(1, prof_pool):
-            self.cv.create_line(2 * w_case, (6 + nb_places + k) * h_case, 65 * w_case, (6 + nb_places + k) * h_case, width=l_faible)
+            self.cv.create_line(2 * w_case, (7 + nb_places + k) * h_case, 65 * w_case, (7 + nb_places + k) * h_case, width=l_faible)
             
         #cadrillage vertical
         for k in range(1, 63):
-            self.cv.create_line((2 + k) * w_case, 3 * h_case, (2 + k) * w_case, (5 + nb_places) * h_case, width=l_faible)
-            self.cv.create_line((2 + k) * w_case, (6 + nb_places) * h_case, (2 + k) * w_case, (6 + nb_places + prof_pool) * h_case, width=l_faible)
+            self.cv.create_line((2 + k) * w_case, 3 * h_case, (2 + k) * w_case, (6 + nb_places) * h_case, width=l_faible)
+            self.cv.create_line((2 + k) * w_case, (7 + nb_places) * h_case, (2 + k) * w_case, (7 + nb_places + prof_pool) * h_case, width=l_faible)
         
         #titres et mois
         self.cv.create_text(int(33.5 * w_case), int(1.5 * h_case), text="P l a n n i n g  " + str(annee) + "  a u  " + str(date.today().day)+" / " + str(date.today().month) + " / " + str(date.today().year))
         self.cv.create_text(int(17.5 * w_case), int(2.5 * h_case), text="J u i l l e t")
         self.cv.create_text(int(49.5 * w_case), int(2.5 * h_case), text="A o u t")
-        self.cv.create_text(int(33.5 * w_case), int((5.5 + nb_places) * h_case), text="P i s c i n e")
+        self.cv.create_text(int(33.5 * w_case), int((6.5 + nb_places) * h_case), text="P i s c i n e")
         
         #numéros des emplacements
         for k in range(1, nb_places + 1):
@@ -244,7 +248,7 @@ class EBMMain(Tk):
         if emplacement > 0 :
             y0 = (4 + emplacement) * h_case + 2
         else :
-            y0 = (5 + nb_places + abs(emplacement)) * h_case + 2
+            y0 = (6 + nb_places + abs(emplacement)) * h_case + 2
         y1 = y0 + h_case - 3
         if mois_arrivee == 7:
             x0 = int((1.5 + jour_arrivee) * w_case)
@@ -433,13 +437,13 @@ class EBMMain(Tk):
         flag = True
         if self.selection == 0:
             flag = False
-        if Y <= 5 * h_case or (5 + nb_places) * h_case <= Y <= (6 + nb_places) * h_case or (6 + nb_places + prof_pool) * h_case <= Y:
+        if Y <= 5 * h_case or (5 + nb_places) * h_case <= Y <= (7 + nb_places) * h_case or (7 + nb_places + prof_pool) * h_case <= Y:
             flag = False
         if flag :
             if Y < (5 + nb_places) * h_case :
                 new_place = Y//h_case - 4
             else :
-                new_place = - (Y//h_case - 5 - nb_places)
+                new_place = - (Y//h_case - 6 - nb_places)
         if flag :
             self.cur.execute('''SELECT NumeroResa, NomAffiche, Arrivee, Depart, Frigo, Ombre, Emplacement, Ancre FROM Reservations WHERE NumeroResa = ?''', (self.selection,))
             row = list(self.cur.fetchone())
