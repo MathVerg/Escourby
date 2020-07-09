@@ -4,20 +4,9 @@
 #Escourby Booking Manager
 #Logiciel de gestion de réservations pour camping
 #Auteur : Mathéo Vergnolle
-#Version 1.2 (Dernière version : 1.1.1, terminée le 02/03/2020, Correctif de bugs de la 1.1, 09/10/2019)
-#Notes de version : correctif de bugs, ajout de fonctionnalités :
-#   - il était possible de déplacer au clavier un emplacement ancré -> c'est corrigé
-#   - si un seul des champs "nom" et "nom_affice" est rempli, l'autre prend la valeur de celui-ci
-#   - le bouton "Export" et toutes ses occurences sont mis en commentaires
-#   - ajout du scroll à la souris
-#   - ajout de l'option "Ombre" (affichée sur le bandeau)
-#   - ajout du nombre d'adultes et d'enfants, et affichage dans l'infobulle
-#   - gestion du couchage par boutons radio plutôt que cases à cocher, et amélioration de l'infobulle
-#   - l'infobulle ne peut plus être recouverte par des réservations
-#   - modification des requetes de sélection pour ne récupérer que les paramètres utiles, modification des paramètres passés à check_conflits
-#   - regroupement des changements d'états des boutons après modification en une seule fonction, et des checks de conflits après édition dans la fenêtre d'édition
-#   - ajout d'un message de confirmation pour la suppression d'une réservation
-
+#Version 1.3
+#Notes de version :
+# - réorganisation de la fenêtre d'édition de réservations
 
 from tkinter import *
 import tkinter.messagebox as mb
@@ -535,20 +524,26 @@ class EditionResa(Toplevel):
         
         self.valeurs_origine = list(row)
         self.valide = True
+        
+        self.grand_cadre = Frame(self, padx=5, pady=5, relief=GROOVE)
+        self.grand_cadre.pack()
+        
+        self.panneau_gauche = Frame(self.grand_cadre, padx=5, pady=5, relief=SUNKEN)
+        self.panneau_gauche.pack(side=LEFT)
 
-        self.cadre_nom = LabelFrame(self, text="Nom", padx=5, pady=5, relief=GROOVE)
+        self.cadre_nom = LabelFrame(self.panneau_gauche, text="Nom", padx=5, pady=5, relief=GROOVE)
         self.cadre_nom.pack()
         self.nom = StringVar(self, value=row[1])
         self.champ_nom = Entry(self.cadre_nom, textvariable=self.nom, width=60)
         self.champ_nom.pack()
         
-        self.cadre_nom_affiche = LabelFrame(self, text="Nom à afficher", padx=5, pady=5, relief=GROOVE)
+        self.cadre_nom_affiche = LabelFrame(self.panneau_gauche, text="Nom à afficher", padx=5, pady=5, relief=GROOVE)
         self.cadre_nom_affiche.pack()
         self.nom_affiche = StringVar(self, value=row[2])
         self.champ_nom_affiche = Entry(self.cadre_nom_affiche, textvariable=self.nom_affiche, width=60)
         self.champ_nom_affiche.pack()
         
-        self.cadre_arrivee = LabelFrame(self, text="Arrivée", padx=5, pady=5, relief=GROOVE)
+        self.cadre_arrivee = LabelFrame(self.panneau_gauche, text="Arrivée", padx=5, pady=5, relief=GROOVE)
         self.cadre_arrivee.pack()
         arrivee = row[3]
         self.jour_arrivee = IntVar(self, value=int(arrivee[3:5]))
@@ -558,7 +553,7 @@ class EditionResa(Toplevel):
         self.choix_mois_a = Scale(self.cadre_arrivee,from_=6,to=8,resolution=1,orient=HORIZONTAL, length=50, width=20, label="Mois", tickinterval=2, variable=self.mois_arrivee)
         self.choix_mois_a.pack(side=LEFT)
         
-        self.cadre_depart = LabelFrame(self, text="Départ", padx=5, pady=5, relief=GROOVE)
+        self.cadre_depart = LabelFrame(self.panneau_gauche, text="Départ", padx=5, pady=5, relief=GROOVE)
         self.cadre_depart.pack()
         depart = row[4]
         self.jour_depart = IntVar(self, value=int(depart[3:5]))
@@ -568,7 +563,16 @@ class EditionResa(Toplevel):
         self.choix_mois_d = Scale(self.cadre_depart,from_=7,to=9,resolution=1,orient=HORIZONTAL, length=50, width=20, label="Mois", tickinterval=2, variable=self.mois_depart)
         self.choix_mois_d.pack(side=LEFT)
         
-        self.cadre_couchage = LabelFrame(self, text="Couchage", padx=5, pady=5, relief=GROOVE)
+        self.cadre_divers = LabelFrame(self.panneau_gauche, text="Divers", padx=5, pady=5, relief=GROOVE)
+        self.cadre_divers.pack()
+        self.divers = StringVar(self, value=row[10])
+        self.champ_divers = Entry(self.cadre_divers, textvariable=self.divers, width=60)
+        self.champ_divers.pack()
+        
+        self.panneau_droite = Frame(self.grand_cadre, padx=5, pady=5, relief=SUNKEN)
+        self.panneau_droite.pack(side=LEFT)
+        
+        self.cadre_couchage = LabelFrame(self.panneau_droite, text="Couchage", padx=5, pady=5, relief=GROOVE)
         self.cadre_couchage.pack()
         self.couchage = IntVar(self, value=row[5])
         self.choix_tentes = Radiobutton(self.cadre_couchage, text="Tentes seulement", variable=self.couchage, value=0)
@@ -578,7 +582,7 @@ class EditionResa(Toplevel):
         self.choix_campingcar = Radiobutton(self.cadre_couchage, text="Camping-car", variable=self.couchage, value=2)
         self.choix_campingcar.pack(side=LEFT)
         
-        self.cadre_options = LabelFrame(self, text="Options", padx=5, pady=5, relief=GROOVE)
+        self.cadre_options = LabelFrame(self.panneau_droite, text="Options", padx=5, pady=5, relief=GROOVE)
         self.cadre_options.pack()
         self.frigo = IntVar(self, value=row[6])
         self.case_frigo = Checkbutton(self.cadre_options, text="Frigo", variable=self.frigo)
@@ -587,7 +591,7 @@ class EditionResa(Toplevel):
         self.case_ombre = Checkbutton(self.cadre_options, text="Ombre", variable=self.ombre)
         self.case_ombre.pack(side=LEFT)
         
-        self.cadre_famille = LabelFrame(self, text="Composition de la famille", padx=5, pady=5, relief=GROOVE)
+        self.cadre_famille = LabelFrame(self.panneau_droite, text="Composition de la famille", padx=5, pady=5, relief=GROOVE)
         self.cadre_famille.pack()
         self.adultes = IntVar(self, value=row[8])
         self.choix_adultes = Scale(self.cadre_famille, from_=0, to=9, resolution=1, orient=HORIZONTAL, length=350, width=20, label="Nombre d'adultes :", tickinterval=1, variable=self.adultes)
@@ -596,23 +600,15 @@ class EditionResa(Toplevel):
         self.enfants = IntVar(self, value=row[9])
         self.choix_enfants = Scale(self.cadre_famille, from_=0, to=9, resolution=1, orient=HORIZONTAL, length=350, width=20, label="Nombre d'enfants :", tickinterval=1, variable=self.enfants)
         self.choix_enfants.pack()
-
         
-        
-        self.cadre_divers = LabelFrame(self, text="Divers", padx=5, pady=5, relief=GROOVE)
-        self.cadre_divers.pack()
-        self.divers = StringVar(self, value=row[10])
-        self.champ_divers = Entry(self.cadre_divers, textvariable=self.divers, width=60)
-        self.champ_divers.pack()
-        
-        self.cadre_emplacement = LabelFrame(self, text="Emplacement", padx=5, pady=5, relief=GROOVE)
+        self.cadre_emplacement = LabelFrame(self.panneau_droite, text="Emplacement", padx=5, pady=5, relief=GROOVE)
         self.cadre_emplacement.pack()
         self.emplacement = IntVar(self, value=row[11])
         self.choix_emplacement = Scale(self.cadre_emplacement,from_=0,to=nb_places,resolution=1,orient=HORIZONTAL, length=300, width=20, label="Numéro (0 = Piscine)", tickinterval=5, variable=self.emplacement)
         self.choix_emplacement.pack(side=LEFT)
         self.ancre = IntVar(self, value=row[12])
         self.case_ancre = Checkbutton(self.cadre_emplacement, text="Ancré à l'emplacment", variable=self.ancre)
-        self.case_ancre.pack(side=LEFT)
+        self.case_ancre.pack()
         
         self.cadre_vc = Frame(self, borderwidth=5, relief=GROOVE)
         self.cadre_vc.pack()
