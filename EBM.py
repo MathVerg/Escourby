@@ -7,6 +7,7 @@
 #Version 1.3
 #Notes de version :
 # - réorganisation de la fenêtre d'édition de réservations
+# - les réservations ancrées ont maintenant une bordure bleue, et la bordure a été agrandie
 
 from tkinter import *
 import tkinter.messagebox as mb
@@ -28,6 +29,7 @@ fond_dimanche = 'yellow'
 fond_place_pair = '#DCDCDC'
 w_cv = 1920
 h_cv = 1400
+coul_ancre = 'blue'
 
 class EBMMain(Tk):
     def __init__(self):
@@ -200,7 +202,7 @@ class EBMMain(Tk):
                     self.max_resa = self.cur.fetchone()[0]
                     if type(self.max_resa) != int :
                         self.max_resa = 0
-                    self.cur.execute("""SELECT NumeroResa, NomAffiche, Arrivee, Depart, Frigo, Ombre, Emplacement from Reservations""")
+                    self.cur.execute("""SELECT NumeroResa, NomAffiche, Arrivee, Depart, Frigo, Ombre, Emplacement, Ancre from Reservations""")
                 except sqlite3.DatabaseError :
                     self.db.close()
                     mb.showerror("Erreur", "Le fichier choisi n'est peut-être pas une base de données, ou n'a pas le bon format")
@@ -221,7 +223,7 @@ class EBMMain(Tk):
             self.cv.focus_set()
     
     def placer_resa(self, row):
-        (num_resa, nomAffiche, arrivee, depart, frigo, ombre, emplacement) = row
+        (num_resa, nomAffiche, arrivee, depart, frigo, ombre, emplacement, ancre) = row
         mois_arrivee = int(arrivee[1])
         jour_arrivee = int(arrivee[3:5])
         mois_depart = int(depart[1])
@@ -256,7 +258,12 @@ class EBMMain(Tk):
             x1 = 65 * w_case
         else :
             x1 = int((33.5 + jour_depart) * w_case)
-        self.liste_rectangles[num_resa] = self.cv.create_rectangle(x0, y0, x1, y1, fill=couleur, activewidth=2)
+        if ancre :
+            bordure = coul_ancre
+        else :
+            bordure = 'black'
+        self.liste_rectangles[num_resa] = self.cv.create_rectangle(x0, y0, x1, y1, fill=couleur, activewidth=3)
+        self.cv.itemconfig(self.liste_rectangles[num_resa], outline = bordure, width=2)
         self.liste_noms[num_resa] = self.cv.create_text((x0 + x1)//2, y0 - 1 + int(h_case/2), text=texte_affiche)
         self.liste_places[num_resa] = emplacement
             
@@ -270,7 +277,7 @@ class EBMMain(Tk):
             self.liste_noms.append(None)
             self.liste_places.append(None)
             self.max_resa += 1
-            self.placer_resa((valeurs[0], valeurs[2], valeurs[3], valeurs[4], valeurs[6], valeurs[7], valeurs[-2]))
+            self.placer_resa((valeurs[0], valeurs[2], valeurs[3], valeurs[4], valeurs[6], valeurs[7], valeurs[-2], valeurs[-1]))
             self.selectionne(self.max_resa)
             self.cur.execute('''INSERT INTO Reservations (NumeroResa, Nom, NomAffiche, Arrivee, Depart, Couchage, Frigo, Ombre, Adultes, Enfants, Divers, Emplacement, Ancre) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', valeurs)
             self.apres_modif()
@@ -287,7 +294,7 @@ class EBMMain(Tk):
             self.liste_rectangles[self.selection] = None
             self.cv.delete(self.liste_noms[self.selection])
             self.liste_noms[self.selection] = None
-            self.placer_resa((valeurs[0], valeurs[2], valeurs[3], valeurs[4], valeurs[6], valeurs[7], valeurs[-2]))
+            self.placer_resa((valeurs[0], valeurs[2], valeurs[3], valeurs[4], valeurs[6], valeurs[7], valeurs[-2], valeurs[-1]))
             self.cur.execute('''UPDATE Reservations SET Nom=?, NomAffiche=?, Arrivee=?, Depart=?, Couchage=?, Frigo=?, Ombre=?, Adultes=?, Enfants=?, Divers=?, Emplacement=?, Ancre=? WHERE NumeroResa = ?''', valeurs[1:] + valeurs[:1])
             self.apres_modif()
             self.selectionne(self.selection)
@@ -364,7 +371,13 @@ class EBMMain(Tk):
     
     def selectionne(self, i):
         if 0 < self.selection <= self.max_resa :
-            self.cv.itemconfig(self.liste_rectangles[self.selection], outline = 'black')
+            self.cur.execute('''SELECT Ancre FROM Reservations WHERE NumeroResa = ?''', (self.selection,))
+            row = list(self.cur.fetchone())
+            if row[0] :
+                bordure = coul_ancre
+            else :
+                bordure = 'black'
+            self.cv.itemconfig(self.liste_rectangles[self.selection], outline = bordure)
         self.selection = i
         if i != 0 :
             self.bouton_infos_resa['state'] = NORMAL
@@ -438,7 +451,7 @@ class EBMMain(Tk):
         if flag :
             self.cv.delete(self.liste_rectangles[self.selection])
             self.cv.delete(self.liste_noms[self.selection])
-            self.placer_resa(row[:-1])
+            self.placer_resa(row)
             self.cv.tag_raise(self.infobulle_cadre)
             self.cv.tag_raise(self.infobulle_texte)
             self.selectionne(self.selection)
@@ -488,7 +501,7 @@ class EBMMain(Tk):
                     row[-2] = new_place
                 self.cv.delete(self.liste_rectangles[self.selection])
                 self.cv.delete(self.liste_noms[self.selection])
-                self.placer_resa(row[:-1])
+                self.placer_resa(row)
                 self.cur.execute('''UPDATE Reservations SET Emplacement = ? WHERE NumeroResa = ?''', (new_place, row[0]))
                 self.apres_modif()
                 self.selectionne(self.selection)
