@@ -375,12 +375,13 @@ class EBMMain(Tk):
     def selectionne(self, i):
         if 0 < self.selection <= self.max_resa :
             self.cur.execute('''SELECT Ancre FROM Reservations WHERE NumeroResa = ?''', (self.selection,))
-            row = list(self.cur.fetchone())
-            if row[0] :
-                bordure = coul_ancre
-            else :
-                bordure = 'black'
-            self.cv.itemconfig(self.liste_rectangles[self.selection], outline = bordure)
+            actual = self.cur.fetchone()
+            if (actual is not None) :
+                if actual[0] :
+                    bordure = coul_ancre
+                else :
+                    bordure = 'black'
+                self.cv.itemconfig(self.liste_rectangles[self.selection], outline = bordure)
         self.selection = i
         if i != 0 :
             self.bouton_infos_resa['state'] = NORMAL
