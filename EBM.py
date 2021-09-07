@@ -4,11 +4,6 @@
 #Escourby Booking Manager
 #Logiciel de gestion de réservations pour camping
 #Auteur : Mathéo Vergnolle
-#Version 1.3
-#Notes de version :
-# - réorganisation de la fenêtre d'édition de réservations
-# - les réservations ancrées ont maintenant une bordure bleue, et la bordure a été agrandie
-# - ajout des numéros des jours en bas du planning
 
 from tkinter import *
 import tkinter.messagebox as mb
@@ -75,7 +70,7 @@ class EBMMain(Tk):
         self.scroll_y = Scrollbar(self.cadre_cv, orient="vertical", command=self.cv.yview)
         self.scroll_y.pack(side=RIGHT, fill=Y)
         self.scroll_x = Scrollbar(self.cadre_cv, orient="horizontal", command=self.cv.xview)
-        self.scroll_x.pack(side=BOTTOM, fill=X)
+        self.scroll_x.pack(side=TOP, fill=X)
         self.cv.pack(side = LEFT, fill=BOTH, expand=True, padx=5, pady=5)
         self.cv.configure(yscrollcommand=self.scroll_y.set, xscrollcommand=self.scroll_x.set)
 
